@@ -386,11 +386,29 @@ class BlogTest extends TestCase
             ->assertDontSee($comment->body);
     }
 
-    /**
-     * TOD:Ensure that blog posts page has pagination.
-     */
-    public function testBlogPostsPageHasPagination()
-    {
-        $this->markTestIncomplete();
-    }
+/**
+ * Ensure that blog posts page has pagination.
+ */
+public function testBlogPostsPageHasPagination()
+{
+    $user = User::factory()->create();
+    
+    $posts = Post::factory()->count(15)->create([
+        'user_id' => $user->id,
+        'published_at' => now()->subDay(),
+        'image' => 'image.jpg', 
+    ]);
+    
+    $response = $this->get(route('posts'));
+    
+    $response->assertStatus(200);
+    
+    $response->assertSee('?page=2', false);
+    
+    $response = $this->get(route('posts') . '?page=2');
+    
+    $response->assertStatus(200);
+    
+    $response->assertSee('?page=1', false);
+}
 }
